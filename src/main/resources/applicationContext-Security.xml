@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:b="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+	<b:bean id="accessDecisionManager"
+		class="org.springframework.security.access.vote.AffirmativeBased">
+		<b:property name="decisionVoters">
+			<b:list>
+				<b:bean id="roleVoter" class="com.core.security.MyAccessDecisionVoterImpl" />
+			</b:list>
+		</b:property>
+	</b:bean>
+	<!-- enable use-expressions -->
+	<http auto-config="false" use-expressions="false" create-session="always"
+		access-decision-manager-ref="accessDecisionManager">
+		<!-- access denied page -->
+		<intercept-url pattern="/**" access="permitAll" />
+		<access-denied-handler error-page="/403" />
+		<form-login login-page="/login" default-target-url="/Welcome"
+			authentication-failure-url="/login?error" username-parameter="username"
+			password-parameter="password" />
+		<logout logout-success-url="/login?logout" />
+	</http>
+
+	<b:bean id="userService" class="com.core.security.MyUserDetailServiceImpl">
+	</b:bean>
+
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider user-service-ref="userService">
+			<password-encoder hash="md5" />
+		</authentication-provider>
+	</authentication-manager>
+	<!-- 获取用户登入角色信息 -->
+	<b:bean id="myUserDetailServiceImpl" class="com.core.security.MyUserDetailServiceImpl">
+	</b:bean>
+
+	<b:bean id="passwordEncoder"
+		class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />
+
+</b:beans>
